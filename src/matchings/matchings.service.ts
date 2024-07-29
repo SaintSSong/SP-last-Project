@@ -4,6 +4,7 @@ import { Repository, In } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Matching } from './entities/matching.entity';
 import { InteractionType } from './types/interaction-type.type';
+import { bringSomeOne } from '../matchings/constants/constants';
 
 @Injectable()
 export class MatchingService {
@@ -31,20 +32,32 @@ export class MatchingService {
         id: In(targetUserIds), // TypeORM의 In을 사용하여 다수의 ID를 조건으로 설정
       },
       order: { id: 'ASC' }, // ID 오름차순으로 정렬
-      select: ['id', 'nickname'],
+      select: ['id', 'nickname'], // 'name' 대신 'nickname' 사용
+      take: bringSomeOne, // 상수 사용하여 한 번에 가져올 유저 수 설정
     });
 
     return users;
   }
 
   // 매칭 결과를 저장하는 함수
-  async saveMatchingResult(userId: number, targetUserId: number, isMatch: boolean) {
+  async saveMatchingResult(userId: number, targetUserId: number, interactionType: InteractionType) {
     // 새로운 Matching 객체 생성
     const matching = new Matching();
-    matching.userId = userId;
-    matching.targetUserId = targetUserId;
-    matching.interactionType = isMatch ? InteractionType.LIKE : InteractionType.DISLIKE;
+    matching.userId = userId; // 매칭 사용자 ID 설정
+    matching.targetUserId = targetUserId; // 매칭 상대방 ID 설정
+    matching.interactionType = interactionType; // 매칭 결과 설정
+
     // 매칭 정보 저장
     await this.matchingRepository.save(matching);
+  }
+
+  // 좋아요를 처리하는 함수
+  async likeUser(userId: number, targetUserId: number) {
+    await this.saveMatchingResult(userId, targetUserId, InteractionType.LIKE); // 좋아요 처리
+  }
+
+  // 싫어요를 처리하는 함수
+  async dislikeUser(userId: number, targetUserId: number) {
+    await this.saveMatchingResult(userId, targetUserId, InteractionType.DISLIKE); // 싫어요 처리
   }
 }
