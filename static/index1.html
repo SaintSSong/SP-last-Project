@@ -37,7 +37,17 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAxLCJpYXQiOjE3MjI2Nzc4MDUsImV4cCI6MTcyMzU0MTgwNX0.HlPts__mCr6kths1JKHyJKnyp9Vk2FvkMxNxi7s5DlE"
-        const chatSocket = io('ws://localhost:3000/chat', {
+        setTimeout(function () {
+
+            const chatSocket = io('ws://43.203.204.158:3000/chat', {
+                auth: {
+                    token
+                }
+            });
+        }, 2000);
+
+        console.log("setTimeout() example...");
+        const chatSocket = io('ws://43.203.204.158:3000/chat', {
             auth: {
                 token
             }
@@ -46,7 +56,7 @@
             auth: {
                 token
             }
-        });
+        })
 
         const joinRoomButton = document.getElementById('joinRoomButton');
         const sendMessageButton = document.getElementById('sendMessageButton');
@@ -73,58 +83,90 @@
 
         })
 
-        chatSocket.on('history', (data) => {
-            if (!joinCheck) {
-                data.messages.forEach((msg) => {
-                    const item = document.createElement('li');
-                    item.textContent = `${msg.nickname}:${msg.text}`;
-                    messagesList.appendChild(item);
-                });
-            }
-            joinCheck = true
+
+        document.addEventListener("DOMContentLoaded", (event) => {
+            const sendButton = document.getElementById('sendButton');
+            const messagesList = document.getElementById('messageBox');
+
+            const chatSocket = io('https://mergeoverflow.shop/chat', {
+                auth: {
+                    token
+                }
+            });
+            chatSocket.emit('join', { roomId, joinCheck })
+
+            sendButton.addEventListener('click', (event) => {
+                const message = document.getElementById('messageInput').value;
+
+                chatSocket.emit('message', { roomId: Number(roomId), message: message });
+            });
+
+            chatSocket.on('message', (message) => {
+                const item = document.createElement('p');
+                item.textContent = `${message.nickname}: ${message.text}`;
+                messagesList.appendChild(item);
+            });
+
+
         });
 
-        chatSocket.on('createChatRoom', (data) => {
-            const { chatRoomId, user1Id, user2Id } = data
-            chatSocket.emit('createChatRoom', { chatRoomId, user1Id, user2Id });
-            const item = document.createElement('li');
-            item.textContent = `Chat room created with ID ${chatRoom.id}`;
-            messagesList.appendChild(item);
-        })
 
-        chatSocket.on('exit', (data) => {
-            const { roomId, type } = data
-            chatSocket.emit('exit', { roomId });
-        })
 
-        chatSocket.on('message', (message) => {
-            const item = document.createElement('li');
-            item.textContent = `${message.nickname}: ${message.text}`;
-            messagesList.appendChild(item);
-        });
+    </script>
 
-        notifySocket.on('likeNotify', (data) => {
-            const { type, userId, mergeRequesterId } = data
-            notifySocket.emit('likeNotify', { type, userId, mergeRequesterId });
-        })
 
-        notifySocket.on('mergeNotify', (data) => {
-            const { type, userId, targetUserId } = data
-            notifySocket.emit('mergeNotify', { type, userId, targetUserId });
-        })
+    chatSocket.on('history', (data) => {
+    if (!joinCheck) {
+    data.messages.forEach((msg) => {
+    const item = document.createElement('li');
+    item.textContent = `${msg.nickname}:${msg.text}`;
+    messagesList.appendChild(item);
+    });
+    }
+    joinCheck = true
+    });
 
-        notifySocket.on('exitNotify', (data) => {
-            const { partnerId, type, partnerNickname } = data
-            notifySocket.emit('exitNotify', { type, partnerId, partnerNickname });
-            // item.textContent = `[알림]${type}:${message}`;
-            // notificationsList.appendChild(item);
-        })
+    chatSocket.on('createChatRoom', (data) => {
+    const { chatRoomId, user1Id, user2Id } = data
+    chatSocket.emit('createChatRoom', { chatRoomId, user1Id, user2Id });
+    const item = document.createElement('li');
+    item.textContent = `Chat room created with ID ${chatRoom.id}`;
+    messagesList.appendChild(item);
+    })
 
-        notifySocket.on('reception', (data) => {
-            const { type, message } = data
-            const item = document.createElement('li');
-            item.textContent = `[알림][${type}]:${message}`;
-            notificationsList.appendChild(item);
-        })
+    chatSocket.on('exit', (data) => {
+    const { roomId, type } = data
+    chatSocket.emit('exit', { roomId });
+    })
+
+    chatSocket.on('message', (message) => {
+    const item = document.createElement('li');
+    item.textContent = `${message.nickname}: ${message.text}`;
+    messagesList.appendChild(item);
+    });
+
+    notifySocket.on('likeNotify', (data) => {
+    const { type, userId, mergeRequesterId } = data
+    notifySocket.emit('likeNotify', { type, userId, mergeRequesterId });
+    })
+
+    notifySocket.on('mergeNotify', (data) => {
+    const { type, userId, targetUserId } = data
+    notifySocket.emit('mergeNotify', { type, userId, targetUserId });
+    })
+
+    notifySocket.on('exitNotify', (data) => {
+    const { partnerId, type, partnerNickname } = data
+    notifySocket.emit('exitNotify', { type, partnerId, partnerNickname });
+    // item.textContent = `[알림]${type}:${message}`;
+    // notificationsList.appendChild(item);
+    })
+
+    notifySocket.on('reception', (data) => {
+    const { type, message } = data
+    const item = document.createElement('li');
+    item.textContent = `[알림][${type}]:${message}`;
+    notificationsList.appendChild(item);
+    })
     </script>
 </body>

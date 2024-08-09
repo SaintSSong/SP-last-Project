@@ -28,7 +28,7 @@ export class UserService {
    * @returns
    */
   async findByUserId(userId: number): Promise<User | null> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['images'] });
     if (user) {
       return user;
     }

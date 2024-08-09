@@ -37,8 +37,10 @@ export class ChatRoomGateway extends SocketGateway implements OnGatewayInit, OnG
     @ConnectedSocket() socket: Socket,
   ) {
     const { chatRoomId, user1Id, user2Id } = data;
-    socket.join(chatRoomId.toString());
-    this.logger.log(`유저 ${user1Id}번님과 유저 ${user2Id}번님이 ${chatRoomId}번방에 머지하였습니다.`);
+    if ([user1Id, user2Id].includes(socket.data.userId)) {
+      socket.join(chatRoomId.toString());
+      this.logger.log(`유저 ${user1Id}번님과 유저 ${user2Id}번님이 ${chatRoomId}번방에 머지하였습니다.`);
+    }
   }
 
   @SubscribeMessage('join')
