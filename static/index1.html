@@ -38,16 +38,18 @@
   <script>
     const token =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxLCJwaG9uZU51bSI6IjAxMC02ODI0LTYzNzkiLCJpYXQiOjE3MjQyMTA4NDMsImV4cCI6MTcyNTA3NDg0M30.Kt6VdeHWyvflSPKbmfZgA_KmxH-YlkxyPIdPbywsBtI';
+
+
     const chatSocket = io('https://api.mergeoverflow.shop/chat', {
       auth: {
         token,
-      },
+      }, transports: ["websocket"]
     });
 
-    const notifySocket = io('ws://localhost:3000/notification', {
+    const notifySocket = io('https://api.mergeoverflow.shop/notification', {
       auth: {
         token,
-      },
+      }, transports: ["websocket"]
     });
 
     const joinRoomButton = document.getElementById('joinRoomButton');
@@ -55,6 +57,9 @@
     const messagesList = document.getElementById('messages');
     const notificationsList = document.getElementById('notifications');
     let joinCheck = false;
+
+
+
 
     joinRoomButton.addEventListener('click', () => {
       const roomId = document.getElementById('joinRoomId').value;

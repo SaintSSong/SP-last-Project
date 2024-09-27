@@ -45,10 +45,11 @@ export class ChatRoomGateway extends SocketGateway implements OnGatewayInit, OnG
     @ConnectedSocket() socket: Socket,
   ) {
     const { roomId, joinCheck } = data;
-    await this.chatRoomService.isUserInChatRoom(socket.data.userId, roomId);
 
+    await this.chatRoomService.isUserInChatRoom(socket.data.userId, roomId);
     if (!joinCheck) {
       socket.join(roomId.toString());
+
       this.server.to(roomId.toString()).emit('join', { roomId, nickname: await socket.data.nickname });
       this.logger.log(`${await socket.data.nickname}님께서 ${roomId}번 방에 입장했습니다.`);
     }
@@ -59,6 +60,7 @@ export class ChatRoomGateway extends SocketGateway implements OnGatewayInit, OnG
     const { roomId } = data;
     const messages = await this.chatRoomService.getRoomMessage(roomId);
     const checkHistory = true;
+
     this.server.to(roomId.toString()).emit('history', { messages, roomId, checkHistory });
   }
 
