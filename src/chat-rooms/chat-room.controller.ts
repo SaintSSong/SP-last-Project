@@ -20,15 +20,4 @@ export class ChatRoomController {
       data: chatRooms,
     };
   }
-
-  @Delete(':roomId')
-  async exitChatRoom(@Param('roomId') roomId: number, @UserInfo() user: User): Promise<ApiResponse<null>> {
-    const userId = user.id;
-    await this.chatRoomService.exitChatRoom(userId, roomId);
-    return {
-      statusCode: HttpStatus.OK,
-      message: roomId + CHATROOM_MESSAGES.EXIT_ROOM.SUCCEED,
-      data: null,
-    };
-  }
 }

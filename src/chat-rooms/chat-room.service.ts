@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ChatRoom } from './entities/chat-room.entity';
 import { ChatMessage } from './entities/chat-message.entity';
 import { Repository } from 'typeorm';
-import { ChatRoomGateway } from './chat-room.gateway';
 import { NotificationType } from 'src/notifications/types/notification-type.type';
 import { NotificationGateway } from 'src/notifications/notification.gateway';
 import { UserService } from 'src/users/user.service';
@@ -19,8 +18,6 @@ export class ChatRoomService {
     private readonly chatRoomRepository: Repository<ChatRoom>,
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
-
-    private readonly chatRoomGateway: ChatRoomGateway,
     private readonly notificationGateway: NotificationGateway,
     private readonly notificationService: NotificationService,
     private readonly userService: UserService,
@@ -61,7 +58,6 @@ export class ChatRoomService {
       .emit('exitNotify', { userId: user2Id, type: NotificationType.EXIT, message: messageToUser2 });
 
     // chat socket에서 퇴장
-    this.chatRoomGateway.server.emit('exit', { roomId });
     this.logger.log(`${userId}번 user가 ${roomId}번 방에서 퇴장하셨습니다.`);
 
     // 채팅방 삭제

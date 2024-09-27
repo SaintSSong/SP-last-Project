@@ -9,7 +9,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatRoomService } from './chat-room.service';
-import { Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SocketGateway } from 'src/common/sockets/gateway';
 import { UserService } from 'src/users/user.service';
@@ -18,7 +17,6 @@ import { MessageType } from './types/message.type';
 @WebSocketGateway({ namespace: 'chat', cors: { origin: '*' }, transports: ['websocket'] })
 export class ChatRoomGateway extends SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    @Inject(forwardRef(() => ChatRoomService))
     private readonly chatRoomService: ChatRoomService,
     private readonly userService: UserService,
     jwtService: JwtService,
@@ -67,6 +65,11 @@ export class ChatRoomGateway extends SocketGateway implements OnGatewayInit, OnG
   @SubscribeMessage('exit')
   async handleExitChatRoom(@MessageBody() data: { roomId: number }, @ConnectedSocket() socket: Socket) {
     const { roomId } = data;
+
+    // chat-room 퇴장을 위한 비즈니스 로직
+    await this.chatRoomService.exitChatRoom(socket.data.userId, roomId);
+
+    // 해당 socket 채팅방에서 퇴장
     socket.leave(roomId.toString());
   }
 
